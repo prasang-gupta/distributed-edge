@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: detection-deployment-wd
+spec:
+  selector:
+    matchLabels:
+      app: detection-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: detection-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: microk8s-wd-1
+      containers:
+      - name: detection-container-wd
+        image: syang1690/detection-serving:faster_rcnn_inception_v2-amd64
+        resources:
+          requests:
+            memory: "2G"
+            cpu: "10m"
+          limits:
+            memory: "3G"
+            cpu: "0.75"
+        ports:
+        - containerPort: 8500
+          name: grpc-port
+        - containerPort: 8501
+          name: rest-port

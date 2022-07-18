@@ -1,0 +1,41 @@
+#Instruction to build docker image with ml model
+### pre requisit following:
+### 1. server that runs the correponding cpu architecture (arm or x86)
+### 2. install docker to the server
+### 3. register with docker hub or private register 
+### 4. Ml model in "saved" format
+
+#reference:https://github.com/tensorflow/serving/blob/master/tensorflow_serving/g3doc/serving_kubernetes.md
+#the docker image from tensorflow is in x86, here is a version with arm built by the community----> https://github.com/emacski/tensorflow-serving-arm
+
+docker pull emacski/tensorflow-serving:latest-linux_arm64
+# if on amd64 use: docker pull tensorflow/serving:latest
+
+docker run -d --name serving_base emacski/tensorflow-serving:latest-linux_arm64
+docker run -d --name serving_base tensorflow/serving:latest
+
+# make a "models" directory inside the container if it does not exist 
+mkdir models
+docker cp models serving_base:/models
+# nagivate into the folder where the actual model exist 
+docker cp models/ssd serving_base:/models/ssd
+docker cp models/efficientdet serving_base:/models/efficientdet
+docker cp models/faster_rcnn_inception_v2 serving_base:/models/faster_rcnn_inception_v2
+
+#validate
+docker container diff serving_base
+
+docker commit --change "ENV MODEL_NAME faster_rcnn_inception_v2" serving_base syang1690/detection-serving:faster_rcnn_inception_v2-arm64
+docker commit --change "ENV MODEL_NAME faster_rcnn_inception_v2" serving_base syang1690/detection-serving:faster_rcnn_inception_v2-amd64
+
+#---------------push & clean up----------#
+docker push syang1690/detection-serving:faster_rcnn_inception_v2-arm64
+docker push syang1690/detection-serving:faster_rcnn_inception_v2-amd64
+
+#require acces to dockerhub registry 
+
+docker kill serving_base
+
+docker rm serving_base
+
+rm -d models

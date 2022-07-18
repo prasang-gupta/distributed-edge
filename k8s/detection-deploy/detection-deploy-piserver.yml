@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: detection-deployment-piserver
+spec:
+  selector:
+    matchLabels:
+      app: detection-server
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: detection-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: piserver
+      containers:
+      - name: detection-container-piserver
+        image: syang1690/detection-serving:faster_rcnn_inception_v2-arm64
+        resources:
+          requests: 
+            memory: "2G"
+            cpu: "1"
+          limits:
+            memory: "3G"
+            cpu: "3"
+        ports:
+        - containerPort: 8500
+          name: grpc-port
+        - containerPort: 8501
+          name: rest-port

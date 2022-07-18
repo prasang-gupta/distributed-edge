@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resnet-deployment-wd
+spec:
+  selector:
+    matchLabels:
+      app: resnet-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: resnet-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: microk8s-wd-1
+      containers:
+      - name: resnet-container-wd
+        image: syang1690/resnet_serving:latest
+        ports:
+        - containerPort: 8500
+          name: grpc-port
+        - containerPort: 8501
+          name: rest-port

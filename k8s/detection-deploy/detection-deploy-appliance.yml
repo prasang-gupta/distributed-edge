@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: detection-deployment-appliance
+spec:
+  selector:
+    matchLabels:
+      app: detection-server
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: detection-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: ubuntu-appliance
+      containers:
+      - name: detection-container-appliance
+        image: syang1690/detection-serving:faster_rcnn_inception_v2-amd64
+        resources:
+          requests: 
+            memory: "2G"
+            cpu: "1"
+          limits:
+            memory: "3G"
+            cpu: "2"
+        ports:
+        - containerPort: 8500
+          name: grpc-port
+        - containerPort: 8501
+          name: rest-port
